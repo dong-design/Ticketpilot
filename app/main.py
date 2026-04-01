@@ -44,4 +44,3 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     return FileResponse(UI_DIR / "index.html")
-#test  saff f
