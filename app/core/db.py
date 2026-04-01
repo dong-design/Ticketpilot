@@ -1,12 +1,14 @@
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
 
 settings = get_settings()
-engine = create_engine(settings.database_url, future=True, pool_pre_ping=True)
+connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+engine = create_engine(settings.database_url, future=True, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 
 
@@ -17,7 +19,13 @@ class Base(DeclarativeBase):
 def init_db() -> None:
     from app.models import approval_task, agent_run, ticket, tool_call, user
 
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except OperationalError as exc:
+        raise RuntimeError(
+            "Database connection failed. Set DATABASE_URL=sqlite:///./ticketpilot.db for local mode, "
+            "or start PostgreSQL first if you want the full stack."
+        ) from exc
 
 
 def get_db() -> Generator[Session, None, None]:

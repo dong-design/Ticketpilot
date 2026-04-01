@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.schemas.run import AgentRunRead, AgentRunStepsRead
-from app.services.run_service import create_run_for_ticket, get_run, get_run_steps
+from app.services.run_service import create_run_for_ticket, get_run, get_run_steps, get_runs_for_ticket
 
 router = APIRouter(prefix="/runs", tags=["runs"])
 tickets_router = APIRouter(prefix="/tickets", tags=["runs"])
@@ -15,6 +15,12 @@ def create_run_endpoint(ticket_id: int, db: Session = Depends(get_db)) -> AgentR
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
     return AgentRunRead.model_validate(run)
+
+
+@tickets_router.get("/{ticket_id}/runs", response_model=list[AgentRunRead])
+def list_runs_for_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)) -> list[AgentRunRead]:
+    runs = get_runs_for_ticket(db, ticket_id)
+    return [AgentRunRead.model_validate(run) for run in runs]
 
 
 @router.get("/{run_id}", response_model=AgentRunRead)

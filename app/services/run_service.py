@@ -11,7 +11,7 @@ from app.models.agent_run import AgentRun
 from app.models.approval_task import ApprovalTask
 from app.models.ticket import Ticket
 from app.models.tool_call import ToolCall
-from app.repositories.runs import get_run_record, list_approvals_for_run, list_tool_calls_for_run
+from app.repositories.runs import get_run_record, list_approvals_for_run, list_runs_for_ticket, list_tool_calls_for_run
 from app.tools.draft_reply import draft_reply
 from app.tools.kb_search import search_knowledge_base
 from app.tools.order_lookup import get_order_info
@@ -33,12 +33,20 @@ def create_run_for_ticket(db: Session, ticket_id: int) -> AgentRun | None:
     db.commit()
     db.refresh(run)
 
-    enqueue_run(run.id)
+    if settings.queue_backend == "inline":
+        process_run(db, run.id)
+        db.refresh(run)
+    else:
+        enqueue_run(run.id)
     return run
 
 
 def get_run(db: Session, run_id: int) -> AgentRun | None:
     return get_run_record(db, run_id)
+
+
+def get_runs_for_ticket(db: Session, ticket_id: int) -> list[AgentRun]:
+    return list_runs_for_ticket(db, ticket_id)
 
 
 def get_run_steps(db: Session, run_id: int):

@@ -8,8 +8,9 @@ class Settings(BaseSettings):
     app_env: str = "dev"
     app_host: str = "0.0.0.0"
     app_port: int = 8000
-    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ticketpilot"
+    database_url: str = "sqlite:///./ticketpilot.db"
     redis_url: str = "redis://localhost:6379/0"
+    queue_backend: str = "inline"
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     queue_name: str = "ticketpilot:runs"
