@@ -36,6 +36,13 @@ textarea {
   font: inherit;
 }
 
+button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .shell {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
@@ -47,6 +54,7 @@ textarea {
   background: rgba(255, 248, 240, 0.72);
   border-right: 1px solid var(--panel-border);
   backdrop-filter: blur(12px);
+  overflow: auto;
 }
 
 .content {
@@ -137,7 +145,8 @@ h2 {
   margin-bottom: 10px;
 }
 
-.hero-actions {
+.hero-actions,
+.button-row {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -151,6 +160,10 @@ h2 {
 
 .workspace-grid.bottom {
   margin-top: 20px;
+}
+
+.metrics-layout {
+  margin-bottom: 20px;
 }
 
 .stack {
@@ -226,10 +239,42 @@ button:hover,
   border: 1px solid rgba(93, 72, 52, 0.12);
 }
 
+.mini-pill {
+  border: 1px solid rgba(13, 122, 97, 0.14);
+  background: rgba(13, 122, 97, 0.08);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+.credential-hints {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.user-card,
+.role-summary {
+  min-height: 130px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.metric-card strong {
+  font-size: 24px;
 }
 
 .stat-card {
@@ -246,6 +291,95 @@ button:hover,
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
+}
+
+.architecture-panel {
+  margin-bottom: 20px;
+}
+
+.architecture-canvas {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 8px 4px;
+}
+
+.arch-node {
+  position: relative;
+  z-index: 1;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(93, 72, 52, 0.1);
+  box-shadow: 0 12px 28px rgba(78, 50, 25, 0.08);
+}
+
+.arch-node.accent {
+  background: rgba(216, 239, 232, 0.72);
+}
+
+.arch-node.warn {
+  background: rgba(255, 237, 226, 0.76);
+}
+
+.arch-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.arch-node strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 19px;
+}
+
+.arch-node p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.arch-link {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(13, 122, 97, 0.18), rgba(185, 100, 49, 0.18));
+  z-index: 0;
+}
+
+.link-a {
+  top: 70px;
+  left: 31%;
+  width: 18%;
+}
+
+.link-b {
+  top: 70px;
+  left: 64%;
+  width: 12%;
+}
+
+.link-c {
+  top: 205px;
+  left: 31%;
+  width: 18%;
+}
+
+.link-d {
+  top: 205px;
+  left: 64%;
+  width: 12%;
+}
+
+.link-e {
+  top: 140px;
+  left: 47%;
+  width: 18%;
+  transform: rotate(90deg);
 }
 
 .ticket-list,
@@ -344,7 +478,10 @@ button:hover,
 .status-running,
 .status-completed,
 .status-resolved,
-.status-approved {
+.status-approved,
+.status-reviewer,
+.status-admin,
+.status-user {
   background: rgba(13, 122, 97, 0.12);
   color: var(--accent);
 }
@@ -412,6 +549,21 @@ button:hover,
   padding: 14px 18px;
   border-radius: 14px;
   box-shadow: var(--shadow);
+  z-index: 10;
+}
+
+@media (max-width: 1300px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .architecture-canvas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .arch-link {
+    display: none;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -438,7 +590,10 @@ button:hover,
     font-size: 28px;
   }
 
-  .stats-grid {
+  .stats-grid,
+  .compact-grid,
+  .metrics-grid,
+  .architecture-canvas {
     grid-template-columns: 1fr;
   }
 

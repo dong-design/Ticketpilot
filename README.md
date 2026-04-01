@@ -61,6 +61,16 @@ http://127.0.0.1:8000/
 
 It lets you create tickets, start agent runs, inspect tool calls, and approve refund actions from one screen.
 
+## Demo accounts
+
+Use any of these accounts in the web console:
+
+- `analyst@ticketpilot.dev / demo123`
+- `reviewer@ticketpilot.dev / demo123`
+- `admin@ticketpilot.dev / demo123`
+
+Analysts can create tickets and run workflows. Reviewers and admins can also approve or reject high-risk actions.
+
 ## Useful endpoints
 
 - `POST /tickets`
@@ -68,11 +78,14 @@ It lets you create tickets, start agent runs, inspect tool calls, and approve re
 - `GET /tickets/{ticket_id}`
 - `GET /tickets/{ticket_id}/runs`
 - `POST /tickets/{ticket_id}/run`
+- `POST /auth/login`
+- `GET /auth/me`
 - `GET /runs/{run_id}`
 - `GET /runs/{run_id}/steps`
 - `GET /approvals`
 - `POST /approvals/{approval_id}/approve`
 - `POST /approvals/{approval_id}/reject`
+- `GET /metrics/summary`
 
 ## Example flow
 

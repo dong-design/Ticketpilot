@@ -10,6 +10,44 @@ from app.models.ticket import Ticket
 
 settings = get_settings()
 
+REFUND_KEYWORDS = [
+    "refund",
+    "chargeback",
+    "return my money",
+    "退款",
+    "退货",
+    "返现",
+    "商品损坏",
+    "损坏",
+    "破损",
+    "退钱",
+]
+
+ORDER_KEYWORDS = [
+    "where is my order",
+    "shipment",
+    "tracking",
+    "deliver",
+    "订单",
+    "物流",
+    "快递",
+    "发货",
+    "配送",
+    "到货",
+]
+
+ACCOUNT_KEYWORDS = [
+    "login",
+    "password",
+    "account",
+    "locked out",
+    "登录",
+    "密码",
+    "账号",
+    "账户",
+    "锁定",
+]
+
 
 @dataclass
 class TriageResult:
@@ -52,15 +90,15 @@ def _analyze_with_rules(ticket: Ticket) -> TriageResult:
     content = f"{ticket.title} {ticket.content}".lower()
     order_id = _extract_order_id(content)
 
-    if any(keyword in content for keyword in ["refund", "chargeback", "return my money"]):
+    if any(keyword in content for keyword in REFUND_KEYWORDS):
         category = "refund"
         priority = "high"
         recommended_action = "request_refund"
-    elif any(keyword in content for keyword in ["where is my order", "shipment", "tracking", "deliver"]):
+    elif any(keyword in content for keyword in ORDER_KEYWORDS):
         category = "order"
         priority = "medium"
         recommended_action = "draft_reply"
-    elif any(keyword in content for keyword in ["login", "password", "account", "locked out"]):
+    elif any(keyword in content for keyword in ACCOUNT_KEYWORDS):
         category = "account"
         priority = "high"
         recommended_action = "escalate"
@@ -83,7 +121,7 @@ def _analyze_with_rules(ticket: Ticket) -> TriageResult:
 
 
 def _extract_order_id(content: str) -> str | None:
-    match = re.search(r"(?:order[\s#:=-]*)?(\d{5,12})", content)
+    match = re.search(r"(?:order|订单)?[\s#:：=-]*(\d{5,12})", content)
     if match:
         return match.group(1)
     return None

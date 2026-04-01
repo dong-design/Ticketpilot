@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.security import get_current_user
 from app.schemas.run import AgentRunRead, AgentRunStepsRead
 from app.services.run_service import create_run_for_ticket, get_run, get_run_steps, get_runs_for_ticket
 
@@ -10,7 +11,7 @@ tickets_router = APIRouter(prefix="/tickets", tags=["runs"])
 
 
 @tickets_router.post("/{ticket_id}/run", response_model=AgentRunRead, status_code=status.HTTP_202_ACCEPTED)
-def create_run_endpoint(ticket_id: int, db: Session = Depends(get_db)) -> AgentRunRead:
+def create_run_endpoint(ticket_id: int, _: dict = Depends(get_current_user), db: Session = Depends(get_db)) -> AgentRunRead:
     run = create_run_for_ticket(db, ticket_id)
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
@@ -18,13 +19,15 @@ def create_run_endpoint(ticket_id: int, db: Session = Depends(get_db)) -> AgentR
 
 
 @tickets_router.get("/{ticket_id}/runs", response_model=list[AgentRunRead])
-def list_runs_for_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)) -> list[AgentRunRead]:
+def list_runs_for_ticket_endpoint(
+    ticket_id: int, _: dict = Depends(get_current_user), db: Session = Depends(get_db)
+) -> list[AgentRunRead]:
     runs = get_runs_for_ticket(db, ticket_id)
     return [AgentRunRead.model_validate(run) for run in runs]
 
 
 @router.get("/{run_id}", response_model=AgentRunRead)
-def get_run_endpoint(run_id: int, db: Session = Depends(get_db)) -> AgentRunRead:
+def get_run_endpoint(run_id: int, _: dict = Depends(get_current_user), db: Session = Depends(get_db)) -> AgentRunRead:
     run = get_run(db, run_id)
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found")
@@ -32,7 +35,7 @@ def get_run_endpoint(run_id: int, db: Session = Depends(get_db)) -> AgentRunRead
 
 
 @router.get("/{run_id}/steps", response_model=AgentRunStepsRead)
-def get_run_steps_endpoint(run_id: int, db: Session = Depends(get_db)) -> AgentRunStepsRead:
+def get_run_steps_endpoint(run_id: int, _: dict = Depends(get_current_user), db: Session = Depends(get_db)) -> AgentRunStepsRead:
     steps = get_run_steps(db, run_id)
     if steps is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found")

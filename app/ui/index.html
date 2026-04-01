@@ -1,71 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TicketPilot Console</title>
+    <title>TicketPilot 控制台</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <div class="shell">
       <aside class="sidebar">
         <div class="brand">
-          <p class="eyebrow">Agent Backend Demo</p>
+          <p class="eyebrow">Agent 后端演示</p>
           <h1>TicketPilot</h1>
           <p class="muted">
-            A visual console for creating tickets, running the agent, and reviewing approvals.
+            一个可视化的智能工单控制台，用来演示工单创建、Agent 运行、工具调用和审批流。
           </p>
         </div>
 
+        <section class="panel auth-panel">
+          <div class="panel-header">
+            <h2>访问身份</h2>
+            <span class="status-badge subtle" id="auth-status-label">未登录</span>
+          </div>
+          <form id="login-form" class="stack">
+            <label>
+              <span>邮箱</span>
+              <input id="login-email" name="email" type="email" value="analyst@ticketpilot.dev" required />
+            </label>
+            <label>
+              <span>密码</span>
+              <input id="login-password" name="password" type="password" value="demo123" required />
+            </label>
+            <div class="button-row">
+              <button class="primary-btn" type="submit">登录</button>
+              <button id="logout-btn" class="ghost-btn" type="button">退出</button>
+            </div>
+          </form>
+          <div class="credential-hints">
+            <button class="mini-pill preset-login-btn" type="button" data-email="analyst@ticketpilot.dev" data-password="demo123">
+              分析员
+            </button>
+            <button class="mini-pill preset-login-btn" type="button" data-email="reviewer@ticketpilot.dev" data-password="demo123">
+              审批员
+            </button>
+            <button class="mini-pill preset-login-btn" type="button" data-email="admin@ticketpilot.dev" data-password="demo123">
+              管理员
+            </button>
+          </div>
+          <div id="current-user-card" class="user-card empty-state">
+            登录后可以创建工单、运行 Agent、查看指标，并按角色执行审批。
+          </div>
+        </section>
+
         <section class="panel">
           <div class="panel-header">
-            <h2>Create Ticket</h2>
-            <button id="seed-order-btn" class="ghost-btn" type="button">Seed Order</button>
+            <h2>创建工单</h2>
+            <button id="seed-order-btn" class="ghost-btn" type="button">填充订单示例</button>
           </div>
           <form id="ticket-form" class="stack">
             <label>
-              <span>Title</span>
-              <input id="title" name="title" type="text" placeholder="Refund request for damaged item" required />
+              <span>标题</span>
+              <input id="title" name="title" type="text" placeholder="商品损坏，申请退款" required />
             </label>
             <label>
-              <span>Channel</span>
+              <span>渠道</span>
               <select id="channel" name="channel">
-                <option value="web">web</option>
-                <option value="email">email</option>
-                <option value="slack">slack</option>
+                <option value="web">网页</option>
+                <option value="email">邮件</option>
+                <option value="slack">Slack</option>
               </select>
             </label>
             <label>
-              <span>Content</span>
+              <span>内容</span>
               <textarea
                 id="content"
                 name="content"
                 rows="8"
-                placeholder="Describe the customer's issue here..."
+                placeholder="请填写用户的问题描述..."
                 required
               ></textarea>
             </label>
-            <button class="primary-btn" type="submit">Create Ticket</button>
+            <button id="create-ticket-btn" class="primary-btn" type="submit">创建工单</button>
           </form>
         </section>
 
         <section class="panel compact">
           <div class="panel-header">
-            <h2>Quick Stats</h2>
-            <button id="refresh-all-btn" class="ghost-btn" type="button">Refresh</button>
+            <h2>快速统计</h2>
+            <button id="refresh-all-btn" class="ghost-btn" type="button">刷新</button>
           </div>
-          <div class="stats-grid">
+          <div class="stats-grid compact-grid">
             <article class="stat-card">
-              <span class="stat-label">Tickets</span>
+              <span class="stat-label">工单数</span>
               <strong id="ticket-count">0</strong>
             </article>
             <article class="stat-card">
-              <span class="stat-label">Pending Approval</span>
+              <span class="stat-label">待审批</span>
               <strong id="approval-count">0</strong>
             </article>
             <article class="stat-card">
-              <span class="stat-label">Latest Run</span>
-              <strong id="latest-run-label">none</strong>
+              <span class="stat-label">最新运行</span>
+              <strong id="latest-run-label">无</strong>
             </article>
           </div>
         </section>
@@ -74,31 +109,116 @@
       <main class="content">
         <section class="hero">
           <div>
-            <p class="eyebrow">Live Workspace</p>
-            <h2>Ticket Operations Console</h2>
+            <p class="eyebrow">实时工作台</p>
+            <h2>智能工单运营面板</h2>
             <p class="muted">
-              Watch tickets flow through classification, tool calls, and approval-gated actions.
+              观察工单如何经过分类、工具调用、风险判定和人工审批，完成整个后端处理闭环。
             </p>
           </div>
           <div class="hero-actions">
-            <button id="seed-refund-btn" class="secondary-btn" type="button">Seed Refund Ticket</button>
-            <a class="ghost-link" href="/docs" target="_blank" rel="noreferrer">Open API Docs</a>
+            <button id="seed-refund-btn" class="secondary-btn" type="button">填充退款示例</button>
+            <a class="ghost-link" href="/docs" target="_blank" rel="noreferrer">打开接口文档</a>
+          </div>
+        </section>
+
+        <section class="workspace-grid metrics-layout">
+          <section class="panel wide">
+            <div class="panel-header">
+              <h2>系统指标</h2>
+              <span class="status-badge subtle" id="metrics-status-label">登录后加载</span>
+            </div>
+            <div class="stats-grid metrics-grid">
+              <article class="stat-card metric-card">
+                <span class="stat-label">已解决工单</span>
+                <strong id="resolved-ticket-count">0</strong>
+              </article>
+              <article class="stat-card metric-card">
+                <span class="stat-label">运行总数</span>
+                <strong id="run-count">0</strong>
+              </article>
+              <article class="stat-card metric-card">
+                <span class="stat-label">完成运行</span>
+                <strong id="completed-run-count">0</strong>
+              </article>
+              <article class="stat-card metric-card">
+                <span class="stat-label">完成率</span>
+                <strong id="run-completion-rate">0%</strong>
+              </article>
+              <article class="stat-card metric-card">
+                <span class="stat-label">平均工具耗时</span>
+                <strong id="avg-tool-latency">0 ms</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>角色能力</h2>
+              <span class="status-badge subtle" id="role-capability-label">未知</span>
+            </div>
+            <div id="role-summary" class="detail-card role-summary empty-state">
+              登录后可查看当前身份能执行哪些操作。
+            </div>
+          </section>
+        </section>
+
+        <section class="panel architecture-panel">
+          <div class="panel-header">
+            <h2>系统结构图</h2>
+            <span class="status-badge subtle">后端拓扑</span>
+          </div>
+          <div class="architecture-canvas">
+            <article class="arch-node accent">
+              <span class="arch-kicker">前端</span>
+              <strong>可视化控制台</strong>
+              <p>负责登录、建单、启动运行、查看结果和执行审批。</p>
+            </article>
+            <article class="arch-node">
+              <span class="arch-kicker">接口层</span>
+              <strong>FastAPI</strong>
+              <p>提供认证、工单、运行、审批和指标接口。</p>
+            </article>
+            <article class="arch-node">
+              <span class="arch-kicker">编排层</span>
+              <strong>Agent 服务</strong>
+              <p>负责分类、优先级判断、工具编排和风险控制。</p>
+            </article>
+            <article class="arch-node">
+              <span class="arch-kicker">工具层</span>
+              <strong>知识库 / 订单 / 回复草稿</strong>
+              <p>模拟外部能力，并把调用记录存入数据库。</p>
+            </article>
+            <article class="arch-node">
+              <span class="arch-kicker">存储层</span>
+              <strong>SQLite / PostgreSQL</strong>
+              <p>保存工单、运行记录、工具调用和审批任务。</p>
+            </article>
+            <article class="arch-node warn">
+              <span class="arch-kicker">治理层</span>
+              <strong>审批员 / 管理员闸门</strong>
+              <p>退款等高风险操作必须由高权限角色确认。</p>
+            </article>
+            <div class="arch-link link-a"></div>
+            <div class="arch-link link-b"></div>
+            <div class="arch-link link-c"></div>
+            <div class="arch-link link-d"></div>
+            <div class="arch-link link-e"></div>
           </div>
         </section>
 
         <section class="workspace-grid">
           <section class="panel wide">
             <div class="panel-header">
-              <h2>Tickets</h2>
-              <span class="status-badge" id="ticket-status-label">Loading...</span>
+              <h2>工单列表</h2>
+              <span class="status-badge" id="ticket-status-label">加载中...</span>
             </div>
             <div id="ticket-list" class="ticket-list"></div>
           </section>
 
           <section class="panel">
             <div class="panel-header">
-              <h2>Approvals</h2>
-              <span class="status-badge subtle" id="approval-status-label">Idle</span>
+              <h2>审批队列</h2>
+              <span class="status-badge subtle" id="approval-status-label">空闲</span>
             </div>
             <div id="approval-list" class="approval-list"></div>
           </section>
@@ -107,21 +227,21 @@
         <section class="workspace-grid bottom">
           <section class="panel wide">
             <div class="panel-header">
-              <h2>Selected Ticket</h2>
-              <span class="status-badge subtle" id="selected-ticket-label">None</span>
+              <h2>当前工单详情</h2>
+              <span class="status-badge subtle" id="selected-ticket-label">未选择</span>
             </div>
             <div id="ticket-detail" class="detail-card empty-state">
-              Select a ticket to inspect run history and actions.
+              点击一条工单后，可以查看工单内容、状态和处理结果。
             </div>
           </section>
 
           <section class="panel">
             <div class="panel-header">
-              <h2>Run Steps</h2>
-              <span class="status-badge subtle" id="run-status-label">No run selected</span>
+              <h2>运行步骤</h2>
+              <span class="status-badge subtle" id="run-status-label">未选择运行</span>
             </div>
             <div id="run-detail" class="detail-card empty-state">
-              Run details will appear here after you start a ticket run.
+              启动 Agent 后，这里会展示工具调用和审批记录。
             </div>
           </section>
         </section>
@@ -139,8 +259,8 @@
           <p class="ticket-preview"></p>
         </div>
         <div class="ticket-actions">
-          <button class="ghost-btn view-ticket-btn" type="button">View</button>
-          <button class="primary-btn run-ticket-btn" type="button">Run Agent</button>
+          <button class="ghost-btn view-ticket-btn" type="button">查看</button>
+          <button class="primary-btn run-ticket-btn" type="button">运行 Agent</button>
         </div>
       </article>
     </template>
@@ -155,8 +275,8 @@
           <p class="approval-meta"></p>
         </div>
         <div class="approval-actions">
-          <button class="secondary-btn approve-btn" type="button">Approve</button>
-          <button class="ghost-btn reject-btn" type="button">Reject</button>
+          <button class="secondary-btn approve-btn" type="button">通过</button>
+          <button class="ghost-btn reject-btn" type="button">拒绝</button>
         </div>
       </article>
     </template>

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     queue_name: str = "ticketpilot:runs"
+    auth_secret_key: str = "ticketpilot-dev-secret"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

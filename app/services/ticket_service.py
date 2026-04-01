@@ -4,13 +4,13 @@ from app.repositories.tickets import create_ticket_record, get_ticket_record, li
 from app.schemas.ticket import TicketCreate
 
 
-def create_ticket(db: Session, payload: TicketCreate):
+def create_ticket(db: Session, payload: TicketCreate, created_by: int | None = None):
     return create_ticket_record(
         db,
         title=payload.title,
         content=payload.content,
         channel=payload.channel,
-        created_by=payload.created_by,
+        created_by=created_by if created_by is not None else payload.created_by,
     )
 
 
